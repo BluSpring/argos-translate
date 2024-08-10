@@ -1,0 +1,103 @@
+name: Build Executables
+
+on:
+  workflow_dispatch:
+  # Manual trigger in case the release needs to be rerun
+  push:
+    branches:
+      - master
+
+jobs:
+
+  # Build Windows EXE
+  build-windows:
+    
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.8'
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+        pip install pyinstaller
+
+    - name: Build
+      run: |
+        python -m PyInstaller -F -n "argos-translate" bin/argos-translate.py
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: 'Windows Artifacts'
+        path: 'dist/'
+
+  # Build MacOS file
+  build-macos:
+    
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.8'
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+        pip install pyinstaller
+
+    - name: Build
+      run: |
+        python -m PyInstaller -F -n "argos-translate" bin/argos-translate.py
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: 'MacOS Artifacts'
+        path: 'dist/'
+
+  build-linux:
+    
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.8'
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+        pip install pyinstaller
+
+    - name: Free Disk Space (Ubuntu)
+      uses: jlumbroso/free-disk-space@main
+      with:
+        # this might remove tools that are actually needed,
+        # if set to "true" but frees about 6 GB
+        tool-cache: false
+  
+        # all of these default to true, but feel free to set to
+        # "false" if necessary for your workflow
+        android: true
+        dotnet: true
+        haskell: true
+        large-packages: true
+        docker-images: true
+        swap-storage: true
+
+    - name: Build
+      run: |
+        python -m PyInstaller -F -n "argos-translate" bin/argos-translate.py
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: 'Linux Artifacts'
+        path: 'dist/'
